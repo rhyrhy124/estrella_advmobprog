@@ -1,0 +1,24 @@
+# Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub/
+.pub-cache/
+build/
+
+# Android
+.gradle/
+android/.gradle/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Generated files
+*.apk
+*.aab
+
+# Git backup folder
+estrella_advmobprog_git_backup/
