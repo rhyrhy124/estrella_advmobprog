@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:provider/provider.dart';
 
-import '../providers/cart_provider.dart';
 import 'cart_screen.dart';
 import 'product_screen.dart';
 import 'profile_screen.dart';
 import 'settings_screen.dart';
 
-// This is the main screen of the application.
+// This screen controls the main navigation of the application.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -17,28 +15,41 @@ class HomeScreen extends StatefulWidget {
       _HomeScreenState();
 }
 
-// This state controls the selected page in the home screen.
 class _HomeScreenState
     extends State<HomeScreen> {
-
-  // This stores the currently selected bottom navigation item.
+  // This stores the currently selected screen.
   int _selectedIndex = 0;
 
-  // This controller is used to control the pages.
+  // This controls the PageView.
   final PageController _pageController =
       PageController();
 
   @override
   void dispose() {
-    // This removes the page controller when the screen is closed.
     _pageController.dispose();
     super.dispose();
   }
 
+  // This shows a simple notification when
+  // the message button is pressed.
+  void _showNoMessages() {
+    ScaffoldMessenger.of(context)
+        .hideCurrentSnackBar();
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
+      const SnackBar(
+        content: Text(
+          'No messages yet.',
+        ),
+        duration:
+            Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-
-    // These are the titles for each page.
     final titles = [
       'Shop',
       'Cart',
@@ -49,6 +60,7 @@ class _HomeScreenState
       appBar: AppBar(
         automaticallyImplyLeading: false,
 
+        // This displays the logo and current screen title.
         title: Row(
           children: [
             Image.asset(
@@ -76,8 +88,8 @@ class _HomeScreenState
           ],
         ),
 
+        // This opens the Settings screen.
         actions: [
-          // This button opens the settings screen.
           IconButton(
             icon: Icon(
               Icons.settings_outlined,
@@ -96,7 +108,7 @@ class _HomeScreenState
         ],
       ),
 
-      // This contains the main pages of the application.
+      // This displays the main screens.
       body: PageView(
         controller: _pageController,
 
@@ -110,57 +122,55 @@ class _HomeScreenState
         ],
       ),
 
-      // This is the bottom navigation bar of the application.
-      bottomNavigationBar:
-          Consumer<CartProvider>(
-        builder:
-            (context, cart, child) {
+      // IMPORTANT:
+      // The floating message icon appears ONLY
+      // when the Shop/Home screen is selected.
+      floatingActionButton:
+          _selectedIndex == 0
+              ? FloatingActionButton(
+                  onPressed: _showNoMessages,
 
-          return BottomNavigationBar(
-            currentIndex:
-                _selectedIndex,
-
-            // This changes the selected page.
-            onTap: (index) {
-              setState(() {
-                _selectedIndex = index;
-              });
-
-              _pageController.jumpToPage(
-                index,
-              );
-            },
-
-            items: [
-              const BottomNavigationBarItem(
-                icon:
-                    Icon(Icons.storefront),
-                label: 'Shop',
-              ),
-
-              // This shows the number of items in the cart.
-              BottomNavigationBarItem(
-                icon: Badge(
-                  isLabelVisible:
-                      cart.itemCount > 0,
-                  label: Text(
-                    '${cart.itemCount}',
-                  ),
                   child: const Icon(
-                    Icons.shopping_cart,
+                    Icons.message_outlined,
                   ),
-                ),
-                label: 'Cart',
-              ),
+                )
+              : null,
 
-              const BottomNavigationBarItem(
-                icon:
-                    Icon(Icons.person),
-                label: 'Profile',
-              ),
-            ],
+      // This keeps the Shop, Cart, and Profile navigation.
+      bottomNavigationBar:
+          BottomNavigationBar(
+        currentIndex:
+            _selectedIndex,
+
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+
+          _pageController.jumpToPage(
+            index,
           );
         },
+
+        items: const [
+          BottomNavigationBarItem(
+            icon:
+                Icon(Icons.storefront),
+            label: 'Shop',
+          ),
+
+          BottomNavigationBarItem(
+            icon:
+                Icon(Icons.shopping_cart),
+            label: 'Cart',
+          ),
+
+          BottomNavigationBarItem(
+            icon:
+                Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
       ),
     );
   }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../providers/cart_provider.dart';
 import '../providers/theme_provider.dart';
+import 'login_screen.dart';
 
 // This screen contains the settings of the application.
 class SettingsScreen extends StatelessWidget {
@@ -50,6 +52,41 @@ class SettingsScreen extends StatelessWidget {
                  ? Icons.dark_mode
                  : Icons.light_mode,
            ),
+         ),
+
+         const Divider(),
+
+         // Logout option.
+         ListTile(
+           leading: const Icon(
+             Icons.logout,
+             color: Colors.red,
+           ),
+           title: const Text(
+             'Logout',
+             style: TextStyle(
+               color: Colors.red,
+               fontWeight: FontWeight.w600,
+             ),
+           ),
+           onTap: () {
+             // Reset cart state for the next user.
+             context
+                 .read<CartProvider>()
+                 .setUser(
+                   1,
+                 );
+
+             // Go back to the Login screen.
+             Navigator.pushAndRemoveUntil(
+               context,
+               MaterialPageRoute(
+                 builder: (_) =>
+                     const LoginScreen(),
+               ),
+               (route) => false,
+             );
+           },
          ),
        ],
      ),
