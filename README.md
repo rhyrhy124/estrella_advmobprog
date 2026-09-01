@@ -147,6 +147,7 @@ When User 1 adds Product D, the cart should contain:
 The new product should be added without removing the existing
 cart items.
 
+
 ## What I Learned
 
 
@@ -178,7 +179,86 @@ I learned how to get the response from the API and use the data
 to update the cart.
 
 
-### API and Flutter
 
-I learned how Flutter can use an API to handle actions such as
-adding products to a cart.
+# Lab Activity 4
+
+## Persistent Authentication and User Profile
+
+
+This activity demonstrates how to save user login information using
+`SharedPreferences` and display it on the Profile Screen.
+
+The application uses the **DummyJSON API** for user authentication.
+
+
+## Persistent Authentication
+
+
+The app saves the user's information after a successful login.
+
+The Splash Screen checks if the user is already logged in.
+
+If logged in, the user goes to the Home Screen. Otherwise, the user
+goes to the Sign In Screen.
+
+
+## User Service and User Model
+
+
+The `UserService` handles the login, saving, and retrieving of user data.
+
+The `User` model is used to handle the user information from the API.
+
+
+## Profile Screen
+
+
+The Profile Screen displays the saved information of the logged-in user,
+such as the name, username, email, gender, and user ID.
+
+
+## Cart Using User ID
+
+
+The saved user ID can be used to get the cart of the logged-in user.
+
+This helps show the correct cart for each user.
+
+
+## Discussion
+
+
+The **User Model** handles the user data, while the **UserService**
+handles the API and saved data.
+
+The **Screens** display the information and handle user actions.
+
+Using these parts makes the code more organized and easier to manage.
+
+
+## What I Learned
+
+
+### SharedPreferences
+
+I learned how to save and retrieve user data locally.
+
+
+### Authentication
+
+I learned how to keep the user logged in after closing the app.
+
+
+### User Model
+
+I learned how to use a model for user data from the API.
+
+
+### Profile
+
+I learned how to display saved user information.
+
+
+### User ID
+
+I learned how to use the user ID to show the correct cart.
