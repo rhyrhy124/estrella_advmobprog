@@ -41,7 +41,18 @@ class CustomVerticalProductCard
               .colorScheme
               .surface,
           borderRadius:
-              BorderRadius.circular(12.r),
+              BorderRadius.circular(14.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black
+                  .withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(
+                0,
+                3,
+              ),
+            ),
+          ],
         ),
 
         child: Column(
@@ -62,9 +73,15 @@ class CustomVerticalProductCard
                   // This displays an icon when the image cannot load.
                   errorBuilder:
                       (_, __, ___) {
-                    return const Center(
-                      child: Icon(
-                        Icons.image_outlined,
+                    return Container(
+                      color: Colors
+                          .grey.shade200,
+                      child: const Center(
+                        child: Icon(
+                          Icons
+                              .image_outlined,
+                          size: 32,
+                        ),
                       ),
                     );
                   },
@@ -83,19 +100,22 @@ class CustomVerticalProductCard
 
                     return const Center(
                       child:
-                          CircularProgressIndicator(),
+                          CircularProgressIndicator(
+                        strokeWidth:
+                            2,
+                      ),
                     );
                   },
                 ),
               ),
             ),
 
-            SizedBox(height: 6.h),
+            SizedBox(height: 8.h),
 
             // This displays the product title.
             CustomText(
               text: product.title,
-              fontSize: 14.sp,
+              fontSize: 13.sp,
               fontweight:
                   FontWeight.bold,
               maxLines: 1,
@@ -103,11 +123,20 @@ class CustomVerticalProductCard
                   TextOverflow.ellipsis,
             ),
 
+            SizedBox(height: 2.h),
+
             // This displays the product price.
             CustomText(
               text:
-                  '₱${product.price.toStringAsFixed(0)}',
-              fontSize: 13.sp,
+                  '₱${product.price.toStringAsFixed(2)}',
+              fontSize: 12.sp,
+              fontweight:
+                  FontWeight.w600,
+              color: Theme.of(
+                context,
+              )
+                  .colorScheme
+                  .primary,
             ),
           ],
         ),

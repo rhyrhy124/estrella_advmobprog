@@ -59,22 +59,44 @@ class _HomeScreenState
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
+        elevation: 0,
+        centerTitle: false,
 
         // This displays the logo and current screen title.
         title: Row(
           children: [
-            Image.asset(
-              'assets/images/nubdexchange_logo.png',
-              height: 32.h,
-              errorBuilder:
-                  (_, __, ___) {
-                return const Icon(
-                  Icons.storefront,
-                );
-              },
+            Container(
+              padding:
+                  EdgeInsets.all(6.r),
+              decoration:
+                  BoxDecoration(
+                color: Theme.of(
+                  context,
+                )
+                    .colorScheme
+                    .primary
+                    .withOpacity(
+                      0.1,
+                    ),
+                borderRadius:
+                    BorderRadius.circular(
+                  8.r,
+                ),
+              ),
+              child: Image.asset(
+                'assets/images/nubdexchange_logo.png',
+                height: 26.h,
+                errorBuilder:
+                    (_, __, ___) {
+                  return const Icon(
+                    Icons.storefront,
+                    size: 22,
+                  );
+                },
+              ),
             ),
 
-            SizedBox(width: 8.w),
+            SizedBox(width: 10.w),
 
             Text(
               titles[_selectedIndex],

@@ -2,23 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../models/product.dart';
+import '../models/user.dart';
 import '../services/product_service.dart';
+import '../services/user_service.dart';
 import '../widgets/custom_text.dart';
 
-// This screen displays the user's profile and related items.
-class ProfileScreen
-    extends StatefulWidget {
-  const ProfileScreen({super.key});
+// Enhancement 3:
+// This screen displays the saved information
+// of the currently logged-in user.
+class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({
+    super.key,
+  });
 
   @override
   State<ProfileScreen> createState() =>
       _ProfileScreenState();
 }
 
-// This state controls the profile screen data.
 class _ProfileScreenState
     extends State<ProfileScreen> {
-  // This stores the future result of the products.
+  final UserService _userService =
+      UserService();
+
+  late Future<User> _userFuture;
+
   late Future<List<Product>>
       _productsFuture;
 
@@ -26,9 +34,15 @@ class _ProfileScreenState
   void initState() {
     super.initState();
 
-    // This loads the products for the recommendations.
+    // Enhancement 3:
+    // Load the saved user information.
+    _userFuture =
+        _userService.getUser();
+
+    // Load products for recommendations.
     _productsFuture =
-        ProductService().getAllProducts();
+        ProductService()
+            .getAllProducts();
   }
 
   @override
@@ -39,38 +53,215 @@ class _ProfileScreenState
 
       child: Column(
         children: [
-          // This displays the user's profile icon.
-          CircleAvatar(
-            radius: 45.r,
-            backgroundColor:
-                Colors.deepPurple.shade100,
+          // Enhancement 3:
+          // FutureBuilder loads the saved user data.
+          FutureBuilder<User>(
+            future: _userFuture,
 
-            child: Icon(
-              Icons.person,
-              size: 50.sp,
-            ),
-          ),
+            builder:
+                (context, snapshot) {
+              if (snapshot.connectionState ==
+                  ConnectionState.waiting) {
+                return const Padding(
+                  padding:
+                      EdgeInsets.all(30),
+                  child:
+                      CircularProgressIndicator(),
+                );
+              }
 
-          SizedBox(height: 12.h),
+              if (snapshot.hasError) {
+                final raw =
+                    snapshot.error
+                        .toString();
 
-          // This displays the user's name.
-          CustomText(
-            text:
-                'Rhyza Ann H. Estrella',
-            fontSize: 19.sp,
-            fontweight:
-                FontWeight.bold,
-          ),
+                String friendly;
 
-          // This displays the user's coins.
-          CustomText(
-            text: 'Coins: 1500',
-            fontSize: 13.sp,
+                if (raw.contains(
+                  'SocketException',
+                ) ||
+                    raw.contains(
+                  'Failed host lookup',
+                ) ||
+                    raw.contains(
+                  'Network is unreachable',
+                )) {
+                  friendly =
+                      'No internet connection. Please try again.';
+                } else if (raw
+                        .contains(
+                  'TimeoutException',
+                ) ||
+                    raw.contains(
+                  'timed out',
+                )) {
+                  friendly =
+                      'The server is taking too long. Please try again.';
+                } else {
+                  friendly =
+                      'Unable to load user information.';
+                }
+
+                return Padding(
+                  padding: EdgeInsets.all(
+                    24.r,
+                  ),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons
+                            .person_off_outlined,
+                        size: 56.sp,
+                        color: Colors
+                            .grey
+                            .shade400,
+                      ),
+                      SizedBox(
+                          height:
+                              10.h),
+                      CustomText(
+                        text:
+                            friendly,
+                        fontSize:
+                            14.sp,
+                        textAlign:
+                            TextAlign
+                                .center,
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              final user =
+                  snapshot.data;
+
+              if (user == null) {
+                return const Text(
+                  'No user information found.',
+                );
+              }
+
+              return Column(
+                children: [
+                  // User image.
+                  CircleAvatar(
+                    radius: 45.r,
+
+                    backgroundImage:
+                        user.image.isNotEmpty
+                            ? NetworkImage(
+                                user.image,
+                              )
+                            : null,
+
+                    child:
+                        user.image.isEmpty
+                            ? Icon(
+                                Icons.person,
+                                size: 50.sp,
+                              )
+                            : null,
+                  ),
+
+                  SizedBox(
+                    height: 12.h,
+                  ),
+
+                  // First name.
+                  CustomText(
+                    text:
+                        user.firstName,
+                    fontSize: 24.sp,
+                    fontweight:
+                        FontWeight.bold,
+                  ),
+
+                  SizedBox(
+                    height: 4.h,
+                  ),
+
+                  // Full name.
+                  CustomText(
+                    text:
+                        '${user.firstName} ${user.lastName}',
+                    fontSize: 17.sp,
+                    fontweight:
+                        FontWeight.w600,
+                  ),
+
+                  SizedBox(
+                    height: 8.h,
+                  ),
+
+                  CustomText(
+                    text:
+                        'Welcome',
+                    fontSize: 14.sp,
+                  ),
+
+                  SizedBox(
+                    height: 20.h,
+                  ),
+
+                  // User information card.
+                  Container(
+                    width:
+                        double.infinity,
+
+                    padding:
+                        EdgeInsets.all(16.r),
+
+                    decoration:
+                        BoxDecoration(
+                      color: Theme.of(
+                        context,
+                      )
+                          .colorScheme
+                          .surface,
+
+                      borderRadius:
+                          BorderRadius
+                              .circular(
+                        12.r,
+                      ),
+                    ),
+
+                    child: Column(
+                      children: [
+                        _userInfoRow(
+                          Icons.email_outlined,
+                          'Email',
+                          user.email,
+                        ),
+
+                        _userInfoRow(
+                          Icons.person_outline,
+                          'Username',
+                          user.username,
+                        ),
+
+                        _userInfoRow(
+                          Icons.wc,
+                          'Gender',
+                          user.gender,
+                        ),
+
+                        _userInfoRow(
+                          Icons.badge_outlined,
+                          'User ID',
+                          '${user.id}',
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
 
           SizedBox(height: 25.h),
 
-          // This displays the My Items section title.
           Align(
             alignment:
                 Alignment.centerLeft,
@@ -85,7 +276,6 @@ class _ProfileScreenState
 
           SizedBox(height: 10.h),
 
-          // These boxes show the different order statuses.
           Row(
             children: [
               _orderBox(
@@ -107,7 +297,6 @@ class _ProfileScreenState
 
           SizedBox(height: 25.h),
 
-          // This displays the recommendation section title.
           Align(
             alignment:
                 Alignment.centerLeft,
@@ -123,13 +312,12 @@ class _ProfileScreenState
 
           SizedBox(height: 12.h),
 
-          // This loads the recommended products.
           FutureBuilder<List<Product>>(
-            future: _productsFuture,
+            future:
+                _productsFuture,
 
             builder:
                 (context, snapshot) {
-              // This shows a loading indicator while products are loading.
               if (snapshot.connectionState ==
                   ConnectionState.waiting) {
                 return const Center(
@@ -138,14 +326,12 @@ class _ProfileScreenState
                 );
               }
 
-              // This shows a message when the products cannot load.
               if (snapshot.hasError) {
                 return const Text(
                   'Unable to load recommendations.',
                 );
               }
 
-              // This gets the first two products for recommendations.
               final products =
                   snapshot.data
                           ?.take(2)
@@ -157,24 +343,26 @@ class _ProfileScreenState
                     .map(
                       (product) =>
                           Expanded(
-                        child: Container(
+                        child:
+                            Container(
                           margin:
                               EdgeInsets.only(
                             right: 6.w,
                           ),
 
-                          child: Column(
+                          child:
+                              Column(
                             children: [
-                              // This displays the product image.
                               Image.network(
                                 product.thumbnail,
-                                height: 90.h,
+                                height:
+                                    90.h,
 
-                                // This shows an icon when the image cannot load.
                                 errorBuilder:
                                     (_, __, ___) {
                                   return SizedBox(
-                                    height: 90.h,
+                                    height:
+                                        90.h,
                                     child:
                                         const Icon(
                                       Icons
@@ -184,7 +372,6 @@ class _ProfileScreenState
                                 },
                               ),
 
-                              // This displays the product name.
                               CustomText(
                                 text:
                                     product.title,
@@ -192,13 +379,13 @@ class _ProfileScreenState
                                     13.sp,
                                 fontweight:
                                     FontWeight.bold,
-                                maxLines: 1,
+                                maxLines:
+                                    1,
                                 overflow:
                                     TextOverflow
                                         .ellipsis,
                               ),
 
-                              // This displays the product price.
                               CustomText(
                                 text:
                                     '₱${product.price.toStringAsFixed(0)}',
@@ -213,6 +400,49 @@ class _ProfileScreenState
                     .toList(),
               );
             },
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Enhancement 3:
+  // This creates one row for the saved user information.
+  Widget _userInfoRow(
+    IconData icon,
+    String label,
+    String value,
+  ) {
+    return Padding(
+      padding:
+          EdgeInsets.symmetric(
+        vertical: 7.h,
+      ),
+
+      child: Row(
+        children: [
+          Icon(icon),
+
+          SizedBox(width: 10.w),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+
+              children: [
+                Text(
+                  label,
+                  style:
+                      const TextStyle(
+                    fontWeight:
+                        FontWeight.bold,
+                  ),
+                ),
+
+                Text(value),
+              ],
+            ),
           ),
         ],
       ),

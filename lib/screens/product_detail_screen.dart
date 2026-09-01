@@ -20,6 +20,9 @@ class ProductDetailScreen
   Future<void> _addToCart(
     BuildContext context,
   ) async {
+    final messenger =
+        ScaffoldMessenger.of(context);
+
     try {
       // CartProvider handles the DummyJSON API call.
       await context
@@ -30,12 +33,15 @@ class ProductDetailScreen
         return;
       }
 
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
+      messenger
+          .hideCurrentSnackBar();
+      messenger.showSnackBar(
         SnackBar(
           content: Text(
             '${product.title} added to cart!',
           ),
+          behavior: SnackBarBehavior
+              .floating,
         ),
       );
     } catch (e) {
@@ -43,12 +49,44 @@ class ProductDetailScreen
         return;
       }
 
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
-        const SnackBar(
+      final raw =
+          e.toString();
+
+      String friendly;
+
+      if (raw.contains(
+        'SocketException',
+      ) ||
+          raw.contains(
+        'Failed host lookup',
+      ) ||
+          raw.contains(
+        'Network is unreachable',
+      )) {
+        friendly =
+            'No internet connection. Please try again.';
+      } else if (raw.contains(
+        'TimeoutException',
+      ) ||
+          raw.contains(
+        'timed out',
+      )) {
+        friendly =
+            'The server is taking too long. Please try again.';
+      } else {
+        friendly =
+            'Failed to add product to cart. Please try again.';
+      }
+
+      messenger
+          .hideCurrentSnackBar();
+      messenger.showSnackBar(
+        SnackBar(
           content: Text(
-            'Failed to add product to cart.',
+            friendly,
           ),
+          behavior: SnackBarBehavior
+              .floating,
         ),
       );
     }
@@ -72,53 +110,77 @@ class ProductDetailScreen
               CrossAxisAlignment.start,
           children: [
             // Product image.
-            ClipRRect(
-              borderRadius:
-                  BorderRadius.circular(
-                16.r,
+            Container(
+              decoration:
+                  BoxDecoration(
+                borderRadius:
+                    BorderRadius.circular(
+                  18.r,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black
+                        .withOpacity(
+                        0.08,
+                      ),
+                    blurRadius: 12,
+                    offset:
+                        const Offset(
+                      0,
+                      4,
+                    ),
+                  ),
+                ],
               ),
-              child: Image.network(
-                product.thumbnail,
-                width:
-                    double.infinity,
-                height: 280.h,
-                fit: BoxFit.cover,
-                errorBuilder:
-                    (_, __, ___) {
-                  return Container(
-                    width:
-                        double.infinity,
-                    height: 280.h,
-                    color:
-                        Colors.grey.shade200,
-                    child:
-                        const Icon(
-                      Icons
-                          .image_outlined,
-                      size: 60,
-                    ),
-                  );
-                },
-                loadingBuilder:
-                    (
-                  context,
-                  child,
-                  loadingProgress,
-                ) {
-                  if (loadingProgress ==
-                      null) {
-                    return child;
-                  }
-
-                  return SizedBox(
-                    height: 280.h,
-                    child:
-                        const Center(
+              child: ClipRRect(
+                borderRadius:
+                    BorderRadius.circular(
+                  18.r,
+                ),
+                child: Image.network(
+                  product.thumbnail,
+                  width:
+                      double.infinity,
+                  height: 280.h,
+                  fit: BoxFit.cover,
+                  errorBuilder:
+                      (_, __, ___) {
+                    return Container(
+                      width:
+                          double.infinity,
+                      height: 280.h,
+                      color: Colors
+                          .grey
+                          .shade200,
                       child:
-                          CircularProgressIndicator(),
-                    ),
-                  );
-                },
+                          const Icon(
+                        Icons
+                            .image_outlined,
+                        size: 60,
+                      ),
+                    );
+                  },
+                  loadingBuilder:
+                      (
+                    context,
+                    child,
+                    loadingProgress,
+                  ) {
+                    if (loadingProgress ==
+                        null) {
+                      return child;
+                    }
+
+                    return SizedBox(
+                      height: 280.h,
+                      child:
+                          const Center(
+                        child:
+                            CircularProgressIndicator(),
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
 
@@ -142,34 +204,62 @@ class ProductDetailScreen
               fontSize: 22.sp,
               fontweight:
                   FontWeight.bold,
+              color: Theme.of(
+                context,
+              )
+                  .colorScheme
+                  .primary,
             ),
 
-            SizedBox(height: 15.h),
+            SizedBox(height: 12.h),
 
             // Rating.
-            Row(
-              children: [
-                const Icon(
-                  Icons.star,
-                  color: Colors.amber,
+            Container(
+              padding:
+                  EdgeInsets.symmetric(
+                horizontal: 10.w,
+                vertical: 6.h,
+              ),
+              decoration:
+                  BoxDecoration(
+                color: Colors.amber
+                    .withOpacity(0.15),
+                borderRadius:
+                    BorderRadius.circular(
+                  20.r,
                 ),
+              ),
+              child: Row(
+                mainAxisSize:
+                    MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.star,
+                    color:
+                        Colors.amber,
+                    size: 18,
+                  ),
 
-                SizedBox(width: 5.w),
+                  SizedBox(width: 4.w),
 
-                CustomText(
-                  text:
-                      '${product.rating} / 5',
-                  fontSize: 14.sp,
-                ),
-              ],
+                  CustomText(
+                    text:
+                        '${product.rating} / 5',
+                    fontSize: 13.sp,
+                    fontweight:
+                        FontWeight
+                            .w600,
+                  ),
+                ],
+              ),
             ),
 
-            SizedBox(height: 20.h),
+            SizedBox(height: 22.h),
 
             // Description.
             CustomText(
               text: 'Description',
-              fontSize: 18.sp,
+              fontSize: 17.sp,
               fontweight:
                   FontWeight.bold,
             ),
@@ -182,7 +272,7 @@ class ProductDetailScreen
               fontSize: 14.sp,
             ),
 
-            SizedBox(height: 20.h),
+            SizedBox(height: 22.h),
 
             _InfoRow(
               label: 'Category',
@@ -228,7 +318,7 @@ class ProductDetailScreen
             SizedBox(
               width:
                   double.infinity,
-              height: 52.h,
+              height: 54.h,
               child:
                   ElevatedButton.icon(
                 onPressed: () {
@@ -238,11 +328,47 @@ class ProductDetailScreen
                 },
 
                 icon: const Icon(
-                  Icons.shopping_cart,
+                  Icons
+                      .shopping_cart_outlined,
+                  color:
+                      Colors.white,
                 ),
 
                 label: const Text(
                   'Add to Cart',
+                  style:
+                      TextStyle(
+                    fontFamily:
+                        'Poppins',
+                    fontSize: 15,
+                    fontWeight:
+                        FontWeight.bold,
+                    color:
+                        Colors.white,
+                    letterSpacing:
+                        0.5,
+                  ),
+                ),
+
+                style:
+                    ElevatedButton.styleFrom(
+                  backgroundColor:
+                      Theme.of(
+                    context,
+                  )
+                          .colorScheme
+                          .primary,
+                  foregroundColor:
+                      Colors.white,
+                  shape:
+                      RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius
+                            .circular(
+                      14.r,
+                    ),
+                  ),
+                  elevation: 2,
                 ),
               ),
             ),

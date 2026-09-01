@@ -34,15 +34,26 @@ class CustomHorizontalProductCard
 
       child: Container(
         margin:
-            EdgeInsets.only(bottom: 10.h),
-        padding: EdgeInsets.all(10.r),
+            EdgeInsets.only(bottom: 12.h),
+        padding: EdgeInsets.all(12.r),
 
         decoration: BoxDecoration(
           color: Theme.of(context)
               .colorScheme
               .surface,
           borderRadius:
-              BorderRadius.circular(12.r),
+              BorderRadius.circular(14.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black
+                  .withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(
+                0,
+                3,
+              ),
+            ),
+          ],
         ),
 
         child: Row(
@@ -117,19 +128,28 @@ class CustomHorizontalProductCard
 
                   // This displays the product category.
                   CustomText(
-                    text: product.category,
-                    fontSize: 12.sp,
+                    text: product.category
+                        .toUpperCase(),
+                    fontSize: 10.sp,
+                    letterSpacing: 0.5,
+                    color: Colors
+                        .grey.shade600,
                   ),
 
-                  SizedBox(height: 4.h),
+                  SizedBox(height: 6.h),
 
                   // This displays the product price.
                   CustomText(
                     text:
-                        '₱${product.price.toStringAsFixed(0)}',
-                    fontSize: 14.sp,
+                        '₱${product.price.toStringAsFixed(2)}',
+                    fontSize: 15.sp,
                     fontweight:
                         FontWeight.bold,
+                    color: Theme.of(
+                      context,
+                    )
+                        .colorScheme
+                        .primary,
                   ),
                 ],
               ),

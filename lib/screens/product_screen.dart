@@ -78,48 +78,115 @@ class _ProductScreenState
 
           // This shows an error message when the products cannot load.
           if (snapshot.hasError) {
+            final raw =
+                snapshot.error
+                    .toString();
+
+            String friendly;
+
+            if (raw.contains(
+              'SocketException',
+            ) ||
+                raw.contains(
+              'Failed host lookup',
+            ) ||
+                raw.contains(
+              'Network is unreachable',
+            )) {
+              friendly =
+                  'No internet connection. Please check your network and try again.';
+            } else if (raw
+                    .contains(
+              'TimeoutException',
+            ) ||
+                raw.contains(
+              'timed out',
+            )) {
+              friendly =
+                  'The server is taking too long to respond. Please try again.';
+            } else {
+              friendly =
+                  'Unable to load products right now.';
+            }
+
             return Center(
               child: Padding(
-                padding: EdgeInsets.all(20.r),
+                padding: EdgeInsets.all(
+                  24.r,
+                ),
                 child: Column(
                   mainAxisAlignment:
-                      MainAxisAlignment.center,
+                      MainAxisAlignment
+                          .center,
                   children: [
-                    const Icon(
-                      Icons.error_outline,
-                      size: 50,
+                    Icon(
+                      Icons
+                          .wifi_off_rounded,
+                      size: 64.sp,
+                      color: Colors
+                          .grey
+                          .shade400,
                     ),
 
-                    SizedBox(height: 10.h),
+                    SizedBox(
+                        height: 14.h),
 
                     CustomText(
                       text:
-                          'Unable to load products.',
-                      fontSize: 16.sp,
+                          'Oops!',
+                      fontSize:
+                          20.sp,
                       fontweight:
-                          FontWeight.bold,
-                      textAlign:
-                          TextAlign.center,
+                          FontWeight
+                              .bold,
                     ),
 
-                    SizedBox(height: 8.h),
+                    SizedBox(
+                        height: 6.h),
 
-                    // This displays the error message.
                     CustomText(
                       text:
-                          '${snapshot.error}',
-                      fontSize: 12.sp,
+                          friendly,
+                      fontSize:
+                          14.sp,
                       textAlign:
-                          TextAlign.center,
+                          TextAlign
+                              .center,
                     ),
 
-                    SizedBox(height: 15.h),
+                    SizedBox(
+                        height: 18.h),
 
                     // This button tries to load the products again.
-                    ElevatedButton(
-                      onPressed: _retry,
-                      child:
-                          const Text('Retry'),
+                    ElevatedButton
+                        .icon(
+                      onPressed:
+                          _retry,
+                      icon: const Icon(
+                        Icons.refresh,
+                      ),
+                      label: const Text(
+                          'Try Again'),
+                      style:
+                          ElevatedButton
+                              .styleFrom(
+                        shape:
+                            RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius
+                                  .circular(
+                            12.r,
+                          ),
+                        ),
+                        padding:
+                            EdgeInsets
+                                .symmetric(
+                          horizontal:
+                              22.w,
+                          vertical:
+                              12.h,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -148,14 +215,60 @@ class _ProductScreenState
               children: [
                 Padding(
                   padding:
-                      EdgeInsets.all(16.r),
-                  child: _buildSearchBar(),
+                      EdgeInsets.fromLTRB(
+                    16.w,
+                    8.h,
+                    16.w,
+                    0,
+                  ),
+                  child:
+                      _buildSearchBar(),
                 ),
 
-                const Expanded(
+                Expanded(
                   child: Center(
-                    child: Text(
-                      'No products found.',
+                    child: Padding(
+                      padding: EdgeInsets
+                          .all(24.r),
+                      child: Column(
+                        mainAxisAlignment:
+                            MainAxisAlignment
+                                .center,
+                        children: [
+                          Icon(
+                            Icons
+                                .search_off_rounded,
+                            size: 72.sp,
+                            color: Colors
+                                .grey
+                                .shade400,
+                          ),
+                          SizedBox(
+                              height:
+                                  12.h),
+                          CustomText(
+                            text:
+                                'No products found',
+                            fontSize:
+                                18.sp,
+                            fontweight:
+                                FontWeight
+                                    .bold,
+                          ),
+                          SizedBox(
+                              height:
+                                  4.h),
+                          CustomText(
+                            text:
+                                'Try a different search term.',
+                            fontSize:
+                                13.sp,
+                            textAlign:
+                                TextAlign
+                                    .center,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -188,22 +301,79 @@ class _ProductScreenState
               children: [
                 _buildSearchBar(),
 
-                SizedBox(height: 22.h),
+                SizedBox(height: 18.h),
 
-                CustomText(
-                  text: 'Hello, Bulldog!',
-                  fontSize: 24.sp,
-                  fontweight:
-                      FontWeight.bold,
+                // Welcome banner card.
+                Container(
+                  width:
+                      double.infinity,
+                  padding:
+                      EdgeInsets.all(18.r),
+                  decoration:
+                      BoxDecoration(
+                    gradient:
+                        LinearGradient(
+                      colors: [
+                        Theme.of(
+                          context,
+                        )
+                            .colorScheme
+                            .primary,
+                        Theme.of(
+                          context,
+                        )
+                            .colorScheme
+                            .primary
+                            .withOpacity(
+                              0.7,
+                            ),
+                      ],
+                      begin: Alignment
+                          .topLeft,
+                      end: Alignment
+                          .bottomRight,
+                    ),
+                    borderRadius:
+                        BorderRadius.circular(
+                      16.r,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment:
+                        CrossAxisAlignment
+                            .start,
+                    children: [
+                      CustomText(
+                        text:
+                            'Hello, Bulldog!',
+                        fontSize:
+                            22.sp,
+                        fontweight:
+                            FontWeight
+                                .bold,
+                        color: Colors
+                            .white,
+                      ),
+                      SizedBox(
+                          height:
+                              4.h),
+                      CustomText(
+                        text:
+                            'Discover great deals at Bulldog Market today.',
+                        fontSize:
+                            12.sp,
+                        color: Colors
+                            .white70,
+                      ),
+                    ],
+                  ),
                 ),
 
                 SizedBox(height: 22.h),
 
-                CustomText(
-                  text: 'Featured',
-                  fontSize: 20.sp,
-                  fontweight:
-                      FontWeight.bold,
+                _SectionHeader(
+                  title:
+                      'Featured',
                 ),
 
                 SizedBox(height: 10.h),
@@ -218,7 +388,7 @@ class _ProductScreenState
                         featured.length,
                     separatorBuilder:
                         (_, __) =>
-                            SizedBox(width: 10.w),
+                            SizedBox(width: 12.w),
                     itemBuilder:
                         (context, index) {
                       return CustomVerticalProductCard(
@@ -231,11 +401,9 @@ class _ProductScreenState
 
                 SizedBox(height: 25.h),
 
-                CustomText(
-                  text: 'On Sale',
-                  fontSize: 20.sp,
-                  fontweight:
-                      FontWeight.bold,
+                _SectionHeader(
+                  title:
+                      'On Sale',
                 ),
 
                 SizedBox(height: 10.h),
@@ -261,6 +429,9 @@ class _ProductScreenState
       controller: _searchController,
       decoration: InputDecoration(
         hintText: 'Search products...',
+        hintStyle: TextStyle(
+          fontSize: 13.sp,
+        ),
         prefixIcon:
             const Icon(Icons.search),
 
@@ -278,11 +449,95 @@ class _ProductScreenState
                   )
                 : null,
 
+        filled: true,
+        fillColor: Theme.of(
+          context,
+        )
+            .colorScheme
+            .surface
+            .withOpacity(
+              0.6,
+            ),
+
+        contentPadding:
+            EdgeInsets.symmetric(
+          vertical: 12.h,
+          horizontal: 12.w,
+        ),
+
         border: OutlineInputBorder(
           borderRadius:
-              BorderRadius.circular(12.r),
+              BorderRadius.circular(14.r),
+          borderSide:
+              BorderSide.none,
+        ),
+
+        enabledBorder:
+            OutlineInputBorder(
+          borderRadius:
+              BorderRadius.circular(14.r),
+          borderSide:
+              BorderSide.none,
+        ),
+
+        focusedBorder:
+            OutlineInputBorder(
+          borderRadius:
+              BorderRadius.circular(14.r),
+          borderSide: BorderSide(
+            color: Theme.of(
+              context,
+            )
+                .colorScheme
+                .primary,
+            width: 1.5,
+          ),
         ),
       ),
+    );
+  }
+}
+
+// Section header with a small accent line
+// for Featured and On Sale sections.
+class _SectionHeader
+    extends StatelessWidget {
+  final String title;
+
+  const _SectionHeader({
+    required this.title,
+  });
+
+  @override
+  Widget build(
+    BuildContext context,
+  ) {
+    return Row(
+      children: [
+        Container(
+          width: 4.w,
+          height: 18.h,
+          decoration:
+              BoxDecoration(
+            color: Theme.of(
+              context,
+            )
+                .colorScheme
+                .primary,
+            borderRadius:
+                BorderRadius.circular(
+              4.r,
+            ),
+          ),
+        ),
+        SizedBox(width: 8.w),
+        CustomText(
+          text: title,
+          fontSize: 19.sp,
+          fontweight:
+              FontWeight.bold,
+        ),
+      ],
     );
   }
 }

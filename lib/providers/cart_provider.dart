@@ -141,6 +141,98 @@ class CartProvider extends ChangeNotifier {
     _updateCart(merged);
   }
 
+  // Increase a cart item's quantity by 1.
+  void increaseQuantity(
+    int productId,
+  ) {
+    if (_cart == null) return;
+
+    final products =
+        List<CartProduct>.from(
+      _cart!.products,
+    );
+
+    final index =
+        products.indexWhere(
+      (item) => item.id == productId,
+    );
+
+    if (index < 0) return;
+
+    final old =
+        products[index];
+
+    final newQuantity =
+        old.quantity + 1;
+
+    products[index] = CartProduct(
+      id: old.id,
+      title: old.title,
+      price: old.price,
+      quantity: newQuantity,
+      total: old.price * newQuantity,
+      discountPercentage:
+          old.discountPercentage,
+      discountedTotal: old.price *
+          newQuantity *
+          (1 -
+              old.discountPercentage /
+                  100),
+      thumbnail: old.thumbnail,
+    );
+
+    _updateCart(products);
+  }
+
+  // Decrease a cart item's quantity by 1.
+  // Removes the item if quantity reaches 0.
+  void decreaseQuantity(
+    int productId,
+  ) {
+    if (_cart == null) return;
+
+    final products =
+        List<CartProduct>.from(
+      _cart!.products,
+    );
+
+    final index =
+        products.indexWhere(
+      (item) => item.id == productId,
+    );
+
+    if (index < 0) return;
+
+    final old =
+        products[index];
+
+    final newQuantity =
+        old.quantity - 1;
+
+    if (newQuantity <= 0) {
+      products.removeAt(index);
+    } else {
+      products[index] = CartProduct(
+        id: old.id,
+        title: old.title,
+        price: old.price,
+        quantity: newQuantity,
+        total:
+            old.price * newQuantity,
+        discountPercentage:
+            old.discountPercentage,
+        discountedTotal: old.price *
+            newQuantity *
+            (1 -
+                old.discountPercentage /
+                    100),
+        thumbnail: old.thumbnail,
+      );
+    }
+
+    _updateCart(products);
+  }
+
   void _updateCart(
     List<CartProduct> products,
   ) {

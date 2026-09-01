@@ -84,9 +84,48 @@ class _CartScreenState
 
         // Show empty cart message.
         if (cart.items.isEmpty) {
-          return const Center(
-            child: Text(
-              'Your cart is empty.',
+          return Center(
+            child: Padding(
+              padding: EdgeInsets.all(
+                24.r,
+              ),
+              child: Column(
+                mainAxisAlignment:
+                    MainAxisAlignment
+                        .center,
+                children: [
+                  Icon(
+                    Icons
+                        .shopping_bag_outlined,
+                    size: 96.sp,
+                    color: Colors
+                        .grey
+                        .shade400,
+                  ),
+                  SizedBox(
+                      height: 14.h),
+                  CustomText(
+                    text:
+                        'Your cart is empty',
+                    fontSize:
+                        20.sp,
+                    fontweight:
+                        FontWeight
+                            .bold,
+                  ),
+                  SizedBox(
+                      height: 6.h),
+                  CustomText(
+                    text:
+                        'Browse the shop and add items to your cart.',
+                    fontSize:
+                        13.sp,
+                    textAlign:
+                        TextAlign
+                            .center,
+                  ),
+                ],
+              ),
             ),
           );
         }
@@ -109,17 +148,17 @@ class _CartScreenState
                   return Container(
                     margin:
                         EdgeInsets.only(
-                      bottom: 10.h,
+                      bottom: 12.h,
                     ),
 
                     padding:
-                        EdgeInsets.all(10.r),
+                        EdgeInsets.all(12.r),
 
                     decoration:
                         BoxDecoration(
                       borderRadius:
                           BorderRadius.circular(
-                        12.r,
+                        14.r,
                       ),
 
                       color: Theme.of(
@@ -127,6 +166,23 @@ class _CartScreenState
                       )
                           .colorScheme
                           .surface,
+
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors
+                              .black
+                              .withOpacity(
+                            0.05,
+                          ),
+                          blurRadius:
+                              8,
+                          offset:
+                              const Offset(
+                            0,
+                            3,
+                          ),
+                        ),
+                      ],
                     ),
 
                     child: Row(
@@ -200,18 +256,6 @@ class _CartScreenState
 
                               CustomText(
                                 text:
-                                    'Quantity: ${product.quantity}',
-
-                                fontSize:
-                                    12.sp,
-                              ),
-
-                              SizedBox(
-                                height: 4.h,
-                              ),
-
-                              CustomText(
-                                text:
                                     '₱${product.price.toStringAsFixed(2)}',
 
                                 fontSize:
@@ -219,6 +263,61 @@ class _CartScreenState
 
                                 fontweight:
                                     FontWeight.bold,
+                              ),
+
+                              SizedBox(
+                                height: 6.h,
+                              ),
+
+                              // Quantity controls.
+                              Row(
+                                children: [
+                                  _QtyButton(
+                                    icon:
+                                        Icons.remove,
+                                    onPressed:
+                                        () {
+                                      context
+                                          .read<
+                                              CartProvider>()
+                                          .decreaseQuantity(
+                                            product.id,
+                                          );
+                                    },
+                                  ),
+
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(
+                                      horizontal:
+                                          10.w,
+                                    ),
+                                    child:
+                                        CustomText(
+                                      text:
+                                          '${product.quantity}',
+                                      fontSize:
+                                          13.sp,
+                                      fontweight:
+                                          FontWeight
+                                              .w600,
+                                    ),
+                                  ),
+
+                                  _QtyButton(
+                                    icon:
+                                        Icons.add,
+                                    onPressed:
+                                        () {
+                                      context
+                                          .read<
+                                              CartProvider>()
+                                          .increaseQuantity(
+                                            product.id,
+                                          );
+                                    },
+                                  ),
+                                ],
                               ),
 
                               SizedBox(
@@ -243,38 +342,78 @@ class _CartScreenState
             ),
 
             // Cart total.
-            Padding(
-              padding:
-                  EdgeInsets.fromLTRB(
-                16.r,
-                8.r,
-                16.r,
-                8.r,
+            Container(
+              margin: EdgeInsets.fromLTRB(
+                16.w,
+                8.h,
+                16.w,
+                8.h,
               ),
-
+              padding:
+                  EdgeInsets.symmetric(
+                horizontal: 16.w,
+                vertical: 14.h,
+              ),
+              decoration:
+                  BoxDecoration(
+                color: Theme.of(
+                  context,
+                )
+                    .colorScheme
+                    .primary
+                    .withOpacity(
+                      0.08,
+                    ),
+                borderRadius:
+                    BorderRadius.circular(
+                  14.r,
+                ),
+              ),
               child: Row(
                 mainAxisAlignment:
                     MainAxisAlignment
                         .spaceBetween,
-
                 children: [
-                  CustomText(
-                    text: 'Total',
-
-                    fontSize: 18.sp,
-
-                    fontweight:
-                        FontWeight.bold,
+                  Column(
+                    crossAxisAlignment:
+                        CrossAxisAlignment
+                            .start,
+                    children: [
+                      CustomText(
+                        text:
+                            'Total',
+                        fontSize:
+                            13.sp,
+                        color: Colors
+                            .grey
+                            .shade700,
+                      ),
+                      SizedBox(
+                          height:
+                              2.h),
+                      CustomText(
+                        text:
+                            '${cart.itemCount} item${cart.itemCount == 1 ? '' : 's'}',
+                        fontSize:
+                            11.sp,
+                        color: Colors
+                            .grey
+                            .shade600,
+                      ),
+                    ],
                   ),
-
                   CustomText(
                     text:
                         '₱${cart.total.toStringAsFixed(2)}',
-
-                    fontSize: 18.sp,
-
+                    fontSize:
+                        22.sp,
                     fontweight:
                         FontWeight.bold,
+                    color: Theme.of(
+                      context,
+                    )
+                        .colorScheme
+                        .primary,
                   ),
                 ],
               ),
@@ -292,7 +431,7 @@ class _CartScreenState
 
               child: SizedBox(
                 width: double.infinity,
-                height: 52.h,
+                height: 54.h,
 
                 child:
                     ElevatedButton.icon(
@@ -300,11 +439,48 @@ class _CartScreenState
                       _confirmOrder,
 
                   icon: const Icon(
-                    Icons.check_circle_outline,
+                    Icons
+                        .check_circle_outline,
+                    color:
+                        Colors.white,
                   ),
 
                   label: const Text(
                     'Confirm Order',
+                    style:
+                        TextStyle(
+                      fontFamily:
+                          'Poppins',
+                      fontSize: 15,
+                      fontWeight:
+                          FontWeight.bold,
+                      color:
+                          Colors.white,
+                      letterSpacing:
+                          0.5,
+                    ),
+                  ),
+
+                  style:
+                      ElevatedButton.styleFrom(
+                    backgroundColor:
+                        Theme.of(
+                      context,
+                    )
+                            .colorScheme
+                            .primary,
+                    foregroundColor:
+                        Colors.white,
+                    shape:
+                        RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius
+                              .circular(
+                        14.r,
+                      ),
+                    ),
+                    elevation:
+                        2,
                   ),
                 ),
               ),
@@ -312,6 +488,55 @@ class _CartScreenState
           ],
         );
       },
+    );
+  }
+}
+
+// Small circular button used for the quantity +/−
+// controls in the cart item row.
+class _QtyButton
+    extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onPressed;
+
+  const _QtyButton({
+    required this.icon,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(
+    BuildContext context,
+  ) {
+    return Material(
+      color: Theme.of(
+        context,
+      )
+          .colorScheme
+          .primary
+          .withOpacity(
+            0.1,
+          ),
+      shape:
+          const CircleBorder(),
+      child: InkWell(
+        onTap: onPressed,
+        customBorder:
+            const CircleBorder(),
+        child: SizedBox(
+          width: 32.w,
+          height: 32.w,
+          child: Icon(
+            icon,
+            size: 18.sp,
+            color: Theme.of(
+              context,
+            )
+                .colorScheme
+                .primary,
+          ),
+        ),
+      ),
     );
   }
 }

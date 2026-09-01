@@ -10,6 +10,7 @@ class CustomText
   final TextAlign textAlign;
   final double letterSpacing;
   final FontStyle fontStyle;
+  final Color? color;
   final int? maxLines;
   final TextOverflow? overflow;
 
@@ -26,6 +27,7 @@ class CustomText
     this.letterSpacing = 0,
     this.fontStyle =
         FontStyle.normal,
+    this.color,
     this.maxLines,
     this.overflow,
   });
@@ -47,6 +49,7 @@ class CustomText
         fontWeight: fontweight,
         fontStyle: fontStyle,
         letterSpacing: letterSpacing,
+        color: color,
       ),
     );
   }
