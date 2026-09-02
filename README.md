@@ -87,74 +87,20 @@ putting it directly in the code.
 
 # Lab Activity 3
 
-## Add to Cart Transaction
-
-
-This activity demonstrates how to add products to a cart using an API.
-
-The **Bulldogs Exchange** application uses the **DummyJSON API**
-to handle the Add to Cart feature.
-
 The API used for adding products is:
 
 https://dummyjson.com/carts/add
-
-
-## Add to Cart
-
 
 When the user clicks the **Add to Cart** button, the selected product
 is added to the user's cart.
 
 The product is also sent to the DummyJSON API.
 
-
-## User Cart
-
-
-Each user has their own cart.
-
-For example:
-
-User 1 has their own cart.
-
-User 2 has a different cart.
-
-The cart items of User 1 should not be shown to User 2.
-
-
-## Cart Items
-
-
-The existing items in the user's cart should stay when adding
-a new product.
-
-For example, User 1 already has:
-
-- Product A
-- Product B
-- Product C
-
-
-When User 1 adds Product D, the cart should contain:
-
-- Product A
-- Product B
-- Product C
-- Product D
-
-
 The new product should be added without removing the existing
 cart items.
 
 
 ## What I Learned
-
-
-### POST Request
-
-I learned how to use a POST request to send product information
-to an API when adding a product to the cart.
 
 
 ### Add to Cart
@@ -182,61 +128,8 @@ to update the cart.
 
 # Lab Activity 4
 
-## Persistent Authentication and User Profile
-
-
-This activity demonstrates how to save user login information using
-`SharedPreferences` and display it on the Profile Screen.
-
 The application uses the **DummyJSON API** for user authentication.
 
-
-## Persistent Authentication
-
-
-The app saves the user's information after a successful login.
-
-The Splash Screen checks if the user is already logged in.
-
-If logged in, the user goes to the Home Screen. Otherwise, the user
-goes to the Sign In Screen.
-
-
-## User Service and User Model
-
-
-The `UserService` handles the login, saving, and retrieving of user data.
-
-The `User` model is used to handle the user information from the API.
-
-
-## Profile Screen
-
-
-The Profile Screen displays the saved information of the logged-in user,
-such as the name, username, email, gender, and user ID.
-
-
-## Cart Using User ID
-
-
-The saved user ID can be used to get the cart of the logged-in user.
-
-This helps show the correct cart for each user.
-
-
-## Discussion
-
-
-The **User Model** handles the user data, while the **UserService**
-handles the API and saved data.
-
-The **Screens** display the information and handle user actions.
-
-Using these parts makes the code more organized and easier to manage.
-
-
-## What I Learned
 
 
 ### SharedPreferences
