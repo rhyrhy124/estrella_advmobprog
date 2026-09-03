@@ -38,8 +38,6 @@ parts of the application.
 
 # Lab Activity 2
 
-## Web to Mobile Transaction
-
 This activity demonstrates how a Flutter mobile application can get
 data from a web API and display it inside the application.
 
