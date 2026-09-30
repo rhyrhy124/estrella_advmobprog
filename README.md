@@ -73,3 +73,33 @@ and application theme.
 
 I learned how to use an `.env` file to store the API host instead of
 putting it directly in the code.
+
+
+# Lab Activity 5
+
+This activity uses Firebase for sign-up, login, and managing
+the user's account.
+
+
+## Discussion
+
+In DummyJSON, I use sample accounts to log in. The app sends the
+username and password to the API and gets the user details.
+
+In Firebase, users can create their own account using email and
+password. Firebase Authentication saves the account, while
+Firestore saves the other profile details.
+
+I use UserService to keep the account functions in one file.
+It handles login, sign-up, viewing user details, updating username,
+changing password, deleting account, and logout.
+
+Firebase helps the app save real accounts and keep users logged in.
+The security rules also help protect each user's profile.
+
+
+## What I Learned
+
+I learned how to connect Firebase to Flutter, create an account,
+and save user details in Firestore. I also learned how to update
+the username, change the password, delete the account, and log out.
