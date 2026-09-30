@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "671500394625",
+    "project_id": "estrella-advmobprog",
+    "storage_bucket": "estrella-advmobprog.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:671500394625:android:ca3445db387d4fd7992d80",
+        "android_client_info": {
+          "package_name": "com.example.estrella_advmobprog"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVNscF6BaTuMdw1f7_RJfAbhcpv8oE3Vs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -8,12 +8,17 @@ class CartProvider extends ChangeNotifier {
   final CartService _cartService = CartService();
 
   Cart? _cart;
+  int _userId = 0;
+  String? _firebaseUid;
 
-  // Current selected DummyJSON user.
-  int _userId = 1;
+  bool _isAdding = false;
+
+  int _generation = 0;
+  int _revision = 0;
+
+  String? error;
 
   int get userId => _userId;
-
   Cart? get cart => _cart;
 
   List<CartProduct> get items =>
@@ -25,262 +30,243 @@ class CartProvider extends ChangeNotifier {
   double get total =>
       _cart?.total ?? 0.0;
 
-  bool _isAdding = false;
-
   bool get isAdding => _isAdding;
 
-  // Set the currently selected user.
-  void setUser(int userId) {
-    _userId = userId;
-
-    // Clear the old user's cart from the app.
-    _cart = null;
-
-    notifyListeners();
-
-    // Automatically load the new user's existing
-    // DummyJSON cart so each user sees their own
-    // API-generated items.
-    loadCart();
-  }
-
-  // Load the cart of the selected user.
-  Future<void> loadCart() async {
-    try {
-      _cart =
-          await _cartService.getCartByUserId(
-        _userId,
-      );
-    } catch (e) {
-      _cart = Cart(
-        id: 0,
-        products: [],
-        total: 0.0,
-        discountedTotal: 0.0,
-        userId: _userId,
-        totalProducts: 0,
-        totalQuantity: 0,
-      );
+  Future<void> setUser(int userId) async {
+    if (userId <= 0) {
+      throw StateError('Invalid DummyJSON user ID.');
     }
 
+    resetSession();
+
+    _userId = userId;
+
+    await loadCart();
+  }
+
+  void setFirebaseUser(String uid) {
+    if (uid.isEmpty) {
+      throw StateError('Missing Firebase UID.');
+    }
+
+    resetSession();
+
+    _firebaseUid = uid;
+
+    // Firebase uses a local cart for this lab.
+    _updateCart([]);
+
     notifyListeners();
   }
 
-  // Add a product using the selected user's ID.
-  Future<void> addToCart(
-    Product product,
-  ) async {
-    if (_isAdding) return;
+  void resetSession() {
+    _generation++;
+    _revision++;
 
-    _isAdding = true;
+    _userId = 0;
+    _firebaseUid = null;
+    _cart = null;
+    _isAdding = false;
+    error = null;
+
     notifyListeners();
+  }
+
+  Future<void> loadCart() async {
+    if (_firebaseUid != null || _userId <= 0) {
+      return;
+    }
+
+    final generation = _generation;
+    final revision = _revision;
 
     try {
-      // IMPORTANT:
-      // This still uses:
-      // POST https://dummyjson.com/carts/add
-      // The API returns the updated cart object which we
-      // use as the new cart state so the Cart page shows
-      // the added product.
-      final apiCart =
-          await _cartService.addToCart(
-        userId: _userId,
-        productId: product.id,
-        quantity: 1,
-      );
+      final result =
+          await _cartService.getCartByUserId(_userId);
 
-      _mergeApiCartIntoLocal(apiCart);
-    } finally {
-      _isAdding = false;
+      if (generation != _generation ||
+          revision != _revision) {
+        return;
+      }
+
+      _cart = result;
+      error = null;
+    } catch (_) {
+      if (generation != _generation ||
+          revision != _revision) {
+        return;
+      }
+
+      _updateCart([]);
+
+      error =
+          'Unable to load the API cart. You can still add items.';
+    }
+
+    if (generation == _generation) {
       notifyListeners();
     }
   }
 
-  // Merge the cart returned by the DummyJSON API into
-  // the current local cart so the UI reflects the
-  // product added via the API.
-  void _mergeApiCartIntoLocal(
-    Cart apiCart,
+  Future<void> addToCart(Product product) async {
+    if (_isAdding) return;
+
+    if (_firebaseUid == null && _userId <= 0) {
+      throw StateError('Please sign in first.');
+    }
+
+    final generation = _generation;
+
+    _revision++;
+    _isAdding = true;
+
+    notifyListeners();
+
+    try {
+      if (_firebaseUid != null) {
+        // Local Firebase cart uses the displayed product price.
+        const discount = 0.0;
+
+        final item = CartProduct(
+          id: product.id,
+          title: product.title,
+          price: product.price,
+          quantity: 1,
+          total: product.price,
+          discountPercentage: discount,
+          discountedTotal: product.price,
+          thumbnail: product.thumbnail,
+        );
+
+        _merge([item]);
+      } else {
+        final result = await _cartService.addToCart(
+          userId: _userId,
+          productId: product.id,
+          quantity: 1,
+        );
+
+        if (generation != _generation) return;
+
+        _merge(result.products);
+      }
+    } finally {
+      if (generation == _generation) {
+        _isAdding = false;
+        notifyListeners();
+      }
+    }
+  }
+
+  CartProduct _quantity(
+    CartProduct product,
+    int quantity,
   ) {
-    final existing =
-        _cart?.products ?? [];
+    return CartProduct(
+      id: product.id,
+      title: product.title,
+      price: product.price,
+      quantity: quantity,
+      total: product.price * quantity,
+      discountPercentage: product.discountPercentage,
+      discountedTotal: product.price *
+          quantity *
+          (1 - product.discountPercentage / 100),
+      thumbnail: product.thumbnail,
+    );
+  }
 
-    final merged =
-        List<CartProduct>.from(existing);
+  void _merge(List<CartProduct> incoming) {
+    final products =
+        List<CartProduct>.from(items);
 
-    for (final apiItem in apiCart.products) {
-      final index =
-          merged.indexWhere(
-        (item) => item.id == apiItem.id,
+    for (final item in incoming) {
+      final index = products.indexWhere(
+        (product) => product.id == item.id,
       );
 
-      if (index >= 0) {
-        final old = merged[index];
-
-        merged[index] = CartProduct(
-          id: old.id,
-          title: old.title,
-          price: old.price,
-          quantity: old.quantity + apiItem.quantity,
-          total: old.price *
-              (old.quantity + apiItem.quantity),
-          discountPercentage:
-              old.discountPercentage,
-          discountedTotal: old.price *
-              (old.quantity + apiItem.quantity) *
-              (1 -
-                  old.discountPercentage /
-                      100),
-          thumbnail: old.thumbnail,
-        );
+      if (index < 0) {
+        products.add(item);
       } else {
-        merged.add(apiItem);
+        products[index] = _quantity(
+          products[index],
+          products[index].quantity + item.quantity,
+        );
       }
     }
 
-    _updateCart(merged);
-  }
-
-  // Increase a cart item's quantity by 1.
-  void increaseQuantity(
-    int productId,
-  ) {
-    if (_cart == null) return;
-
-    final products =
-        List<CartProduct>.from(
-      _cart!.products,
-    );
-
-    final index =
-        products.indexWhere(
-      (item) => item.id == productId,
-    );
-
-    if (index < 0) return;
-
-    final old =
-        products[index];
-
-    final newQuantity =
-        old.quantity + 1;
-
-    products[index] = CartProduct(
-      id: old.id,
-      title: old.title,
-      price: old.price,
-      quantity: newQuantity,
-      total: old.price * newQuantity,
-      discountPercentage:
-          old.discountPercentage,
-      discountedTotal: old.price *
-          newQuantity *
-          (1 -
-              old.discountPercentage /
-                  100),
-      thumbnail: old.thumbnail,
-    );
-
     _updateCart(products);
   }
 
-  // Decrease a cart item's quantity by 1.
-  // Removes the item if quantity reaches 0.
-  void decreaseQuantity(
-    int productId,
-  ) {
-    if (_cart == null) return;
+  void increaseQuantity(int productId) {
+    _change(productId, 1);
+  }
+
+  void decreaseQuantity(int productId) {
+    _change(productId, -1);
+  }
+
+  void _change(int id, int delta) {
+    if (_isAdding) return;
 
     final products =
-        List<CartProduct>.from(
-      _cart!.products,
-    );
+        List<CartProduct>.from(items);
 
-    final index =
-        products.indexWhere(
-      (item) => item.id == productId,
+    final index = products.indexWhere(
+      (product) => product.id == id,
     );
 
     if (index < 0) return;
 
-    final old =
-        products[index];
+    _revision++;
 
-    final newQuantity =
-        old.quantity - 1;
+    final quantity =
+        products[index].quantity + delta;
 
-    if (newQuantity <= 0) {
+    if (quantity <= 0) {
       products.removeAt(index);
     } else {
-      products[index] = CartProduct(
-        id: old.id,
-        title: old.title,
-        price: old.price,
-        quantity: newQuantity,
-        total:
-            old.price * newQuantity,
-        discountPercentage:
-            old.discountPercentage,
-        discountedTotal: old.price *
-            newQuantity *
-            (1 -
-                old.discountPercentage /
-                    100),
-        thumbnail: old.thumbnail,
+      products[index] = _quantity(
+        products[index],
+        quantity,
       );
     }
 
     _updateCart(products);
+
+    notifyListeners();
   }
 
   void _updateCart(
     List<CartProduct> products,
   ) {
-    final total =
-        products.fold<double>(
-      0.0,
-      (sum, item) =>
-          sum + item.total,
-    );
-
-    final discountedTotal =
-        products.fold<double>(
-      0.0,
-      (sum, item) =>
-          sum + item.discountedTotal,
-    );
-
-    final totalQuantity =
-        products.fold<int>(
-      0,
-      (sum, item) =>
-          sum + item.quantity,
-    );
-
     _cart = Cart(
       id: _cart?.id ?? 0,
       products: products,
-      total: total,
-      discountedTotal:
-          discountedTotal,
+      total: products.fold<double>(
+        0,
+        (sum, product) => sum + product.total,
+      ),
+      discountedTotal: products.fold<double>(
+        0,
+        (sum, product) =>
+            sum + product.discountedTotal,
+      ),
       userId: _userId,
-      totalProducts:
-          products.length,
-      totalQuantity:
-          totalQuantity,
+      totalProducts: products.length,
+      totalQuantity: products.fold<int>(
+        0,
+        (sum, product) => sum + product.quantity,
+      ),
     );
   }
 
   void clearCart() {
-    _cart = Cart(
-      id: 0,
-      products: [],
-      total: 0.0,
-      discountedTotal: 0.0,
-      userId: _userId,
-      totalProducts: 0,
-      totalQuantity: 0,
-    );
+    _generation++;
+    _revision++;
+    _isAdding = false;
+
+    _updateCart([]);
 
     notifyListeners();
   }

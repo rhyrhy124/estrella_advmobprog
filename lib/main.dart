@@ -1,9 +1,11 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 
+import 'firebase_options.dart';
 import 'providers/cart_provider.dart';
 import 'providers/theme_provider.dart';
 import 'screens/home_screen.dart';
@@ -12,6 +14,11 @@ import 'screens/splash_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase using the generated configuration.
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   await dotenv.load(
     fileName: '.env',
@@ -25,24 +32,18 @@ Future<void> main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) =>
-              ThemeProvider(),
+          create: (_) => ThemeProvider(),
         ),
-
         ChangeNotifierProvider(
-          create: (_) =>
-              CartProvider(),
+          create: (_) => CartProvider(),
         ),
       ],
-
-      child:
-          const BulldogMarketApp(),
+      child: const BulldogMarketApp(),
     ),
   );
 }
 
-class BulldogMarketApp
-    extends StatelessWidget {
+class BulldogMarketApp extends StatelessWidget {
   const BulldogMarketApp({
     super.key,
   });
@@ -50,84 +51,41 @@ class BulldogMarketApp
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      designSize:
-          const Size(412, 715),
-
+      designSize: const Size(412, 715),
       minTextAdapt: true,
-
       splitScreenMode: true,
-
-      builder:
-          (context, child) {
-        final theme =
-            context.watch<ThemeProvider>();
+      builder: (context, child) {
+        final theme = context.watch<ThemeProvider>();
 
         return MaterialApp(
-          debugShowCheckedModeBanner:
-              false,
-
-          title:
-              'Bulldog Market',
-
+          debugShowCheckedModeBanner: false,
+          title: 'Bulldog Market',
           theme: ThemeData(
             useMaterial3: true,
-            brightness:
-                Brightness.light,
-
-            colorScheme:
-                ColorScheme.fromSeed(
-              seedColor:
-                  Colors.indigo,
-              brightness:
-                  Brightness.light,
+            brightness: Brightness.light,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.indigo,
+              brightness: Brightness.light,
             ),
-
-            fontFamily:
-                'Poppins',
-
-            scaffoldBackgroundColor:
-                const Color(
-              0xFFFFF8FF,
-            ),
+            fontFamily: 'Poppins',
+            scaffoldBackgroundColor: const Color(0xFFFFF8FF),
           ),
-
           darkTheme: ThemeData(
             useMaterial3: true,
-            brightness:
-                Brightness.dark,
-
-            colorScheme:
-                ColorScheme.fromSeed(
-              seedColor:
-                  Colors.indigo,
-              brightness:
-                  Brightness.dark,
+            brightness: Brightness.dark,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.indigo,
+              brightness: Brightness.dark,
             ),
-
-            fontFamily:
-                'Poppins',
+            fontFamily: 'Poppins',
           ),
-
-          themeMode:
-              theme.isDark
-                  ? ThemeMode.dark
-                  : ThemeMode.light,
-
-          // Enhancement 1:
-          // The app now starts with the
-          // custom splash screen.
-          home:
-              const SplashScreen(),
-
-          // Enhancement 1 and 2:
-          // Named routes are used for
-          // authentication navigation.
+          themeMode: theme.isDark
+              ? ThemeMode.dark
+              : ThemeMode.light,
+          home: const SplashScreen(),
           routes: {
-            '/signin': (_) =>
-                const LoginScreen(),
-
-            '/home': (_) =>
-                const HomeScreen(),
+            '/signin': (_) => const LoginScreen(),
+            '/home': (_) => const HomeScreen(),
           },
         );
       },

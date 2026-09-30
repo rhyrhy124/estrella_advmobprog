@@ -509,16 +509,15 @@ class _QtyButton
     BuildContext context,
   ) {
     return Material(
-      color: Theme.of(
-        context,
-      )
-          .colorScheme
-          .primary
-          .withOpacity(
-            0.1,
-          ),
+      color: Colors.yellow,
       shape:
           const CircleBorder(),
+      elevation: 4,
+      shadowColor: Colors
+          .black
+          .withOpacity(
+            0.15,
+          ),
       child: InkWell(
         onTap: onPressed,
         customBorder:
@@ -528,12 +527,8 @@ class _QtyButton
           height: 32.w,
           child: Icon(
             icon,
-            size: 18.sp,
-            color: Theme.of(
-              context,
-            )
-                .colorScheme
-                .primary,
+            size: 22.sp,
+            color: Colors.black87,
           ),
         ),
       ),
