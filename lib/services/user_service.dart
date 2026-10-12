@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -665,7 +664,7 @@ class UserService {
     }
 
     if (error is StateError) {
-      return '${error.message}';
+      return error.message;
     }
 
     return 'Request failed. Check your connection and try again.';
